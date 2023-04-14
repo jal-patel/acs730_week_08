@@ -49,7 +49,15 @@ resource "aws_instance" "web" {
   ami                    = data.aws_ami.ubuntu.id
   instance_type          = "t2.micro"
   vpc_security_group_ids = [aws_security_group.web-sg.id]
-
+  
+  root_block_device {
+      encrypted          = true
+  }
+  
+  metadata_options {
+    http_tokens = "required"
+  }
+  
   user_data = <<-EOF
               #!/bin/bash
               apt-get update
@@ -66,7 +74,7 @@ resource "aws_security_group" "web-sg" {
     from_port   = 8080
     to_port     = 8080
     protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
+    cidr_blocks = ["10.0.0.0/0"]
   }
   // connectivity to ubuntu mirrors is required to run `apt-get update` and `apt-get install apache2`
   egress {
